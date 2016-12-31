@@ -8,6 +8,7 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -17,7 +18,7 @@ import javax.xml.transform.sax.TransformerHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
-class TransformerWriter implements XMLStreamWriter {
+public class TransformerWriter implements XMLStreamWriter {
 	
 	private static class Context {
 		public final QName name;
@@ -28,7 +29,7 @@ class TransformerWriter implements XMLStreamWriter {
 	private TransformerHandler handler;
 	private Stack<TransformerWriter.Context> context = new Stack<TransformerWriter.Context>();
 	private AttributesImpl attributes = new AttributesImpl();
-	private boolean isFinished = false;
+	private boolean isFinished = true;
 	
 	private static class NamespaceContextImpl implements NamespaceContext {
 		
@@ -80,7 +81,23 @@ class TransformerWriter implements XMLStreamWriter {
 		public void addLocalBinding(String prefix, String URI) {
 			mapped_prefixes.put(URI, prefix);
 		}
+		
+		public String toQualifiedName(QName name) throws XMLStreamException {
+			String namespace_uri = name.getNamespaceURI();
+			String local_name = name.getLocalPart();
+			
+			if (XMLConstants.NULL_NS_URI.equals(namespace_uri)) {
+				return local_name;
+			} else {
+				String prefix = getPrefix(namespace_uri);
+				if (prefix == null) throw new XMLStreamException("Unknown URI for " + prefix);
+				if (prefix == XMLConstants.DEFAULT_NS_PREFIX) return local_name;
+				return prefix + ":" + local_name;
+			}
+		}
 	}
+	
+
 	
 	private void finishStartingElement() throws XMLStreamException {
 		if (!isFinished) {
@@ -88,17 +105,19 @@ class TransformerWriter implements XMLStreamWriter {
 			try {
 				for (String uri : current.namespace.getLocalURIs())
 					handler.startPrefixMapping(current.namespace.getPrefix(uri), uri);
-				handler.startElement(current.name.getNamespaceURI(), current.name.getLocalPart(), current.name.getPrefix() + ":" + current.name.getLocalPart(), attributes);
+				handler.startElement(current.name.getNamespaceURI(), current.name.getLocalPart(), current.namespace.toQualifiedName(current.name), attributes);
 			} catch (SAXException e) {
 				throw new XMLStreamException(e);
 			}
 			attributes.clear();
+			isFinished = true;
 		}			
 	}
 	
 	public void writeStartElement(QName name) throws XMLStreamException {
 		finishStartingElement();
-		context.push(new Context(name, new NamespaceContextImpl(context.peek().namespace)));
+		NamespaceContextImpl current_namespace = context.isEmpty() ? null : context.peek().namespace;
+		context.push(new Context(name, new NamespaceContextImpl(current_namespace)));
 		isFinished = false;	
 	}
 
@@ -149,8 +168,7 @@ class TransformerWriter implements XMLStreamWriter {
 		finishStartingElement();
 		try {
 			TransformerWriter.Context current = context.pop();
-			String qname = current.name.getPrefix() + ":" + current.name.getLocalPart();
-			handler.endElement(current.name.getNamespaceURI(), current.name.getLocalPart(), qname);
+			handler.endElement(current.name.getNamespaceURI(), current.name.getLocalPart(), current.namespace.toQualifiedName(current.name));
 			for (String prefix : current.namespace.getLocalPrefixes())
 				handler.endPrefixMapping(prefix);
 		} catch (SAXException e) {
@@ -178,20 +196,25 @@ class TransformerWriter implements XMLStreamWriter {
 
 	@Override
 	public void writeAttribute(String localName, String value) throws XMLStreamException {
-		writeAttribute("",localName,value);
+		writeAttribute(new QName(localName), value);
+	}
+	
+	public void writeAttribute(QName name, String value)
+			throws XMLStreamException {
+		String qname = context.peek().namespace.toQualifiedName(name);
+		attributes.addAttribute(name.getNamespaceURI(), name.getLocalPart(), qname, "", value );
 	}
 
 	@Override
 	public void writeAttribute(String prefix, String namespaceURI, String localName, String value)
 			throws XMLStreamException {
-		String qname = prefix + ":" + localName;
-		attributes.addAttribute(namespaceURI, localName, qname, "", value );
+		writeAttribute(new QName(namespaceURI, localName, prefix), value);
 		
 	}
 
 	@Override
 	public void writeAttribute(String namespaceURI, String localName, String value) throws XMLStreamException {
-		writeAttribute("",namespaceURI, localName,value);			
+		writeAttribute(new QName(namespaceURI, localName),value);			
 	}
 
 	@Override
@@ -340,5 +363,8 @@ class TransformerWriter implements XMLStreamWriter {
 		return handler.getTransformer().getOutputProperty(name);
 	}
 
+	public TransformerWriter(TransformerHandler handler) {
+		this.handler = handler;
+	}
 	
 }
