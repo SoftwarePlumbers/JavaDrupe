@@ -1,21 +1,20 @@
 package org.javadrupe.collections;
 
-import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-/** The ubiquitous unmodifiable list class.
+/** This is the ubiquitous unmodifiable list class.
  * 
- * A not-bad implementation of the ubiquitous unmodifiable list class. Why the fuck isn't this in
- * java already?
+ * A not-bad implementation of the ubiquitous unmodifiable list class. Can be used in
+ * places where Stream.Builder doesn't fit the bill; the join() method allows two partially
+ * built lists to be joined together.
  * 
  * TODO: maybe provide better spliterator implementation
  * 
- * @author localadmin
+ * @author Jonathan Essex.
  *
  * @param <E> Element type.
  */
@@ -29,7 +28,7 @@ public interface UnmodifiableList<E> extends Iterable<E> {
 	/** Get sublist containing all elements in list after first. */
 	public UnmodifiableList<E> tail();
 	/** Create a new list, containing all elements in this list plus elem. */
-	public UnmodifiableList<E> cons(E elem);
+	public UnmodifiableList<E> add(E elem);
 	/** Create a new list, containing all elements in this list plus <code>list</code> */
 	public UnmodifiableList<E> join(UnmodifiableList<E> list);
 	/** is this list empty? */
@@ -38,7 +37,15 @@ public interface UnmodifiableList<E> extends Iterable<E> {
 	public default Stream<E> stream() { return StreamSupport.stream(spliterator(), false); }
 
 	
-	/** Create an unmodifiable view of an existing list */
+	/** Create an unmodifiable view of an existing list.
+	 * 
+	 * This allows us, for example, to create a single unmodifiable list containing
+	 * several source lists without copying the underlying data in the source lists.
+	 * However, it should be noted that unless the 'viewed' list provides an efficient
+	 * sublist method, some operations on the resulting unmodifiable list may be very
+	 * inefficient.
+	 * 
+	 */
 	public static <E> UnmodifiableList<E> view(List<E> to_view) {
 		return new Proxy<E>(to_view);
 	}
@@ -48,24 +55,38 @@ public interface UnmodifiableList<E> extends Iterable<E> {
 		return (UnmodifiableList<E>)EMPTY;
 	}
 	
+	/** Convenient way to create umodifiable list with type inference.
+	 * 
+	 *  @param es Array of elmenets to create an unmodifiable list from.
+	 *  @return an unmodifiable list containing the specified elements.
+	 */
 	@SafeVarargs
-	public static <E> UnmodifiableList<E> as(E... es) {
+	public static <E> UnmodifiableList<E> of(E... es) {
 		return new Proxy<E>(Arrays.asList(es));
 	}
-	
+
+	/** Empty Iterator.
+	 * 
+	 * Come java 9, hopefully this will be private. Do not use directly.
+	 *  
+	 */
 	public static class EmptyIterator<E> implements Iterator<E> {
 		public boolean hasNext() { return false; }
 		public E next() { return null; }
 	}
 
-	/** Why can't I make this fucking private, java?? */
+	/** Empty Unmodifiable List.
+	 * 
+	 * Come java 9, hopefully this will be private. Do not use directly.
+	 *  
+	 */
 	public static class Empty<E> implements UnmodifiableList<E> {
 		@Override
 		public E head() { return null; }
 		@Override
 		public UnmodifiableList<E> tail() { return null; }
 		@Override
-		public UnmodifiableList<E> cons(E elem) { return new Impl<E>(elem, this); }
+		public UnmodifiableList<E> add(E elem) { return new Impl<E>(elem, this); }
 		@Override
 		public boolean isEmpty() { return true; }
 		@Override
@@ -74,7 +95,11 @@ public interface UnmodifiableList<E> extends Iterable<E> {
 		public Iterator<E> iterator() { return new EmptyIterator<E>(); }
 	}
 	
-	/** Why can't I make this fucking private, java?? */
+	/** Iterator over an unmodifiable list.
+	 * 
+	 * Come java 9, hopefully this will be private. Do not use directly.
+	 *  
+	 */
 	public static class IteratorImpl<E> implements Iterator<E> {
 		private UnmodifiableList<E> next;
 		@Override
@@ -84,7 +109,11 @@ public interface UnmodifiableList<E> extends Iterable<E> {
 		public IteratorImpl(UnmodifiableList<E> next) { this.next = next; }
 	}
 	
-	/** Why can't I make this fucking private, java?? */
+	/** Main implementation class.
+	 * 
+	 * Come java 9, hopefully this will be private. Do not use directly.
+	 *  
+	 */
 	public static class Impl<E> implements UnmodifiableList<E> {
 		private final E head;
 		private final UnmodifiableList<E> tail;
@@ -96,14 +125,18 @@ public interface UnmodifiableList<E> extends Iterable<E> {
 		@Override
 		public UnmodifiableList<E> tail() { return tail; }
 		@Override
-		public UnmodifiableList<E> cons(E elem) { return new Impl<E>(elem, this); }
+		public UnmodifiableList<E> add(E elem) { return new Impl<E>(elem, this); }
 		@Override
 		public Iterator<E> iterator() { return new IteratorImpl<E>(this); }
 		@Override
 		public UnmodifiableList<E> join(UnmodifiableList<E> list) { return list.isEmpty() ? this : new Merged<E>(this, list); }
 	}
 	
-	/** Why can't I make this fucking private, java?? */
+	/** Main implementation class.
+	 * 
+	 * Come java 9, hopefully this will be private. Do not use directly.
+	 *  
+	 */
 	public static class Merged<E> implements UnmodifiableList<E> {
 		UnmodifiableList<E> a;
 		UnmodifiableList<E> b;	
@@ -113,7 +146,7 @@ public interface UnmodifiableList<E> extends Iterable<E> {
 		@Override
 		public UnmodifiableList<E> tail() { return (a.tail().isEmpty()) ? b : new Merged<E>(a.tail(), b); }
 		@Override
-		public UnmodifiableList<E> cons(E elem) { return new Impl<E>(elem, this); }
+		public UnmodifiableList<E> add(E elem) { return new Impl<E>(elem, this); }
 		@Override
 		public Iterator<E> iterator() { return new IteratorImpl<E>(this); }
 		@Override
@@ -137,7 +170,7 @@ public interface UnmodifiableList<E> extends Iterable<E> {
 		@Override
 		public UnmodifiableList<E> tail() { return new Proxy<E>(proxied.subList(1, proxied.size())); }
 		@Override
-		public UnmodifiableList<E> cons(E elem) { return new Impl<E>(elem, this); }
+		public UnmodifiableList<E> add(E elem) { return new Impl<E>(elem, this); }
 		@Override
 		public UnmodifiableList<E> join(UnmodifiableList<E> list) { return list.isEmpty() ? this : new Merged<E>(this, list);	}
 	}
