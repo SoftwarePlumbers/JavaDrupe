@@ -18,6 +18,21 @@ import javax.xml.transform.sax.TransformerHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
+/** Class that permits XSL transformation to be applied to written XML.
+ * <p>
+ * There are lots of ways to apply a transformation to XML as it is read from some
+ * source. However, the Streaming XML APIs seem to be missing a way to apply a
+ * transformation to XML that is being written. This class is a bridge between
+ * the XMLStreamWriter interface and the lower-level TransformerHandler interface,
+ * allowing a transformation to be applied to XML written with the more convenient
+ * higher level XMLStreamWriter API.
+ * </p><p>
+ * It should definitely, at this point, be considered a work in progress. As ever with
+ * XML, namespace handling makes some of the impementation much more complicated.
+ * </p>
+ * @author Jonathan Essex
+ *
+ */
 public class TransformerWriter implements XMLStreamWriter {
 	
 	private static class Context {
