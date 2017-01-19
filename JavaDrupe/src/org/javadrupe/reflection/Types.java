@@ -20,8 +20,8 @@ import javax.xml.transform.Source;
 
 public class Types {
 	
-	  private static final String SCHEMA_PREFIX = "xs";
-	  private static final String SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
+	  public static final String SCHEMA_PREFIX = "xs";
+	  public static final String SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
 	  
 	  public static QName toQName(String type_name) {
 		  return new QName(SCHEMA_URI, type_name, SCHEMA_PREFIX);
