@@ -73,6 +73,17 @@ public class NameValuePair<T>  {
 		return false;
 	}
 	
+	/** Equality operator
+	 * 
+	 * Names must be non-null. Values may be null.
+	 * 
+	 * @param other
+	 * @return true if name and value are both equal, or if names are equal and values are both null.
+	 */
+	public boolean equals(Object other) {
+		return other instanceof NameValuePair ? equals((NameValuePair<?>)other) : false;
+	}
+	
 	/** Hash code 
 	 * 
 	 * @return has code based on hashes of both name and value.
