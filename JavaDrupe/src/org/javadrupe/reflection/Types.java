@@ -34,30 +34,30 @@ public class Types {
 	  private static final HashMap<Class<?>, QName> JAVA_TO_XML = new HashMap<Class<?>,QName>();
 	  private static final HashMap<QName, Class<?>> XML_TO_JAVA = new HashMap<QName, Class<?>>();
 
-	  private static final QName QN_BOOLEAN = toQName("boolean");
-	  private static final QName QN_BYTE = toQName("byte") ;
-	  private static final QName QN_STRING = toQName("string");
-	  private static final QName QN_DOUBLE = toQName("double");
-	  private static final QName QN_FLOAT = toQName("float");
-	  private static final QName QN_INT = toQName("int");
-	  private static final QName QN_LONG = toQName("long");
-	  private static final QName QN_SHORT = toQName("short");
+	  public static final QName QN_BOOLEAN = toQName("boolean");
+	  public static final QName QN_BYTE = toQName("byte") ;
+	  public static final QName QN_STRING = toQName("string");
+	  public static final QName QN_DOUBLE = toQName("double");
+	  public static final QName QN_FLOAT = toQName("float");
+	  public static final QName QN_INT = toQName("int");
+	  public static final QName QN_LONG = toQName("long");
+	  public static final QName QN_SHORT = toQName("short");
 	  
-	  private static final QName QN_INTEGER = toQName("integer");
-	  private static final QName QN_DECIMAL = toQName("decimal"); 
-	  private static final QName QN_QNAME = toQName("QName");  
-	  private static final QName QN_DATETIME = toQName("dateTime"); 
-	  private static final QName QN_BASE64BIN = toQName("base64Binary"); 
-	  private static final QName QN_HEXBIN = toQName("hexBinary"); 
-	  private static final QName QN_UINT = toQName("unsignedInt"); 
-	  private static final QName QN_USHORT = toQName("unsignedShort"); 
-	  private static final QName QN_UBYTE = toQName("unsignedByte"); 
-	  private static final QName QN_TIME = toQName("time"); 
-	  private static final QName QN_DATE = toQName("date"); 
-	  private static final QName QN_G = toQName( "g"); 
-	  private static final QName QN_ANYSIMPLETYPE = toQName("anySimpleType"); 
-	  private static final QName QN_DURATION = toQName("duration"); 
-	  private static final QName QN_NOTATION = toQName("NOTATION"); 
+	  public static final QName QN_INTEGER = toQName("integer");
+	  public static final QName QN_DECIMAL = toQName("decimal"); 
+	  public static final QName QN_QNAME = toQName("QName");  
+	  public static final QName QN_DATETIME = toQName("dateTime"); 
+	  public static final QName QN_BASE64BIN = toQName("base64Binary"); 
+	  public static final QName QN_HEXBIN = toQName("hexBinary"); 
+	  public static final QName QN_UINT = toQName("unsignedInt"); 
+	  public static final QName QN_USHORT = toQName("unsignedShort"); 
+	  public static final QName QN_UBYTE = toQName("unsignedByte"); 
+	  public static final QName QN_TIME = toQName("time"); 
+	  public static final QName QN_DATE = toQName("date"); 
+	  public static final QName QN_G = toQName( "g"); 
+	  public static final QName QN_ANYSIMPLETYPE = toQName("anySimpleType"); 
+	  public static final QName QN_DURATION = toQName("duration"); 
+	  public static final QName QN_NOTATION = toQName("NOTATION"); 
 	  
 	  static {
 		  PRIMITIVES_TO_WRAPPERS.put(boolean.class, Boolean.class);
