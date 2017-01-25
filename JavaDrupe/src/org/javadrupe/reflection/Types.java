@@ -84,31 +84,33 @@ public class Types {
 		  XML_TO_JAVA_PRIMITIVE = JAVA_PRIMITIVE_TO_XML.entrySet().stream().collect(Collectors.toMap(e->e.getValue(), e->e.getKey()));
 		  
 		  XML_TO_JAVA.put(QN_STRING,String.class);
+		  JAVA_TO_XML.put(String.class, QN_STRING);
 		  XML_TO_JAVA.put(QN_INTEGER, BigInteger.class);
+		  JAVA_TO_XML.put(BigInteger.class, QN_INTEGER);		  
 		  XML_TO_JAVA.put(QN_DECIMAL, BigDecimal.class); 
+		  JAVA_TO_XML.put(BigDecimal.class, QN_DECIMAL);
 		  XML_TO_JAVA.put(QN_QNAME, QName.class);
-		  XML_TO_JAVA.put(QN_DATETIME, XMLGregorianCalendar.class); 
+		  JAVA_TO_XML.put(QName.class, QN_QNAME);
+		  XML_TO_JAVA.put(QN_DURATION, Duration.class); 
+		  JAVA_TO_XML.put(Duration.class, QN_DURATION);
+
+		  XML_TO_JAVA.put(QN_TIME, XMLGregorianCalendar.class); 
+		  XML_TO_JAVA.put(QN_DATE, XMLGregorianCalendar.class);
+		  XML_TO_JAVA.put(QN_DATETIME, XMLGregorianCalendar.class);
+		  XML_TO_JAVA.put(QN_G, XMLGregorianCalendar.class); 
+		  JAVA_TO_XML.put(XMLGregorianCalendar.class, QN_ANYSIMPLETYPE);
+		  JAVA_TO_XML.put(Calendar.class, QN_DATETIME);
+		  JAVA_TO_XML.put(Date.class, QN_DATETIME);
+		  
 		  XML_TO_JAVA.put(QN_BASE64BIN, byte[].class); 
 		  XML_TO_JAVA.put(QN_HEXBIN, byte[].class); 
 		  XML_TO_JAVA.put(QN_UINT, long.class);
-		  XML_TO_JAVA.put(QN_USHORT, int.class); 
+		  XML_TO_JAVA.put(QN_USHORT, int.class);
 		  XML_TO_JAVA.put(QN_UBYTE, short.class);
-		  XML_TO_JAVA.put(QN_TIME, XMLGregorianCalendar.class); 
-		  XML_TO_JAVA.put(QN_DATE, XMLGregorianCalendar.class);
-		  XML_TO_JAVA.put(QN_G, XMLGregorianCalendar.class); 
 		  XML_TO_JAVA.put(QN_ANYSIMPLETYPE, String.class); 
-		  XML_TO_JAVA.put(QN_DURATION, Duration.class); 
 		  XML_TO_JAVA.put(QN_NOTATION, QName.class); 
 		  
-		  JAVA_TO_XML.put(String.class, QN_STRING);
-		  JAVA_TO_XML.put(BigInteger.class, QN_INTEGER);
-		  JAVA_TO_XML.put(BigDecimal.class, QN_DECIMAL);
-		  JAVA_TO_XML.put(Calendar.class, QN_DATETIME);
-		  JAVA_TO_XML.put(Date.class, QN_DATETIME);
-		  JAVA_TO_XML.put(QName.class, QN_QNAME);
 		  JAVA_TO_XML.put(URI.class, QN_STRING);
-		  JAVA_TO_XML.put(XMLGregorianCalendar.class, QN_ANYSIMPLETYPE);
-		  JAVA_TO_XML.put(Duration.class, QN_DURATION);
 		  JAVA_TO_XML.put(Image.class, QN_BASE64BIN);
 		  JAVA_TO_XML.put(DataHandler.class, QN_BASE64BIN);
 		  JAVA_TO_XML.put(Source.class, QN_BASE64BIN);
@@ -170,7 +172,7 @@ public class Types {
 	   * @return QName of schema type.
 	   */
 	  public static Optional<Class<?>> getTypeFromSchema(QName qname) {
-		  Optional<Class<?>> result = Optional.of(XML_TO_JAVA.get(qname));
+		  Optional<Class<?>> result = Optional.ofNullable(XML_TO_JAVA.get(qname));
 		  // Don't use Optional.orElse for efficiency.
 		  return result.isPresent() ? result : getPrimitiveTypeFromSchema(qname);
 	  }
